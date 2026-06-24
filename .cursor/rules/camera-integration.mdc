@@ -1,0 +1,66 @@
+---
+description: react-webcam → Blob → Supabase Storage の撮影・アップロード手順
+globs: ["**/CameraCapture*", "**/capture/**"]
+alwaysApply: false
+---
+
+# カメラ連携ガイド
+
+## react-webcam の基本パターン
+
+`components/CameraCapture.tsx` が出発点。以下の手順で写真アップロードを実装する。
+
+### Step 1: Base64 → Blob 変換
+
+```ts
+function base64ToBlob(base64: string, mimeType: string): Blob {
+  const byteString = atob(base64.split(',')[1]);
+  const arrayBuffer = new ArrayBuffer(byteString.length);
+  const uint8Array = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < byteString.length; i++) {
+    uint8Array[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([arrayBuffer], { type: mimeType });
+}
+```
+
+### Step 2: Supabase Storage にアップロード
+
+```ts
+import { createClient } from '@/lib/supabase/client';
+
+async function uploadPhoto(imageBase64: string, userId: string) {
+  const supabase = createClient();
+  const blob = base64ToBlob(imageBase64, 'image/jpeg');
+  const fileName = `${userId}/${Date.now()}.jpg`;
+
+  const { data, error } = await supabase.storage
+    .from('post-images')   // Supabase ダッシュボードで作成したバケット名
+    .upload(fileName, blob, { contentType: 'image/jpeg' });
+
+  if (error) throw error;
+
+  // 公開 URL を取得
+  const { data: urlData } = supabase.storage
+    .from('post-images')
+    .getPublicUrl(data.path);
+
+  return urlData.publicUrl;
+}
+```
+
+### Step 3: posts テーブルに保存
+
+```ts
+await supabase.from('posts').insert({
+  user_id: userId,
+  image_url: publicUrl,
+  caption: '',           // キャプションは後から追加可能
+});
+```
+
+## 注意事項
+- バケットのアクセスポリシーは「Public」に設定する（画像が表示されるため）
+- ファイルサイズが大きい場合は `quality` オプションで圧縮する:
+  `webcamRef.current?.getScreenshot({ quality: 0.7 })`
+- モバイルでは `facingMode: 'environment'` でアウトカメラを使用

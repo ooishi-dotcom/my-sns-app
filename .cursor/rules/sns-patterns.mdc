@@ -1,0 +1,75 @@
+---
+description: Supabase SSR パターン・RLS・Realtime・フォロー実装ガイド
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: false
+---
+
+# SNS パターンガイド
+
+## Supabase クライアントの使い分け
+
+**ブラウザ（Client Component）**:
+```ts
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+```
+
+**サーバー（Server Component / Route Handler）**:
+```ts
+import { createClient } from '@/lib/supabase/server';
+const supabase = await createClient();
+```
+
+## posts テーブルの RLS ポリシー例
+
+```sql
+-- 全員が読める
+CREATE POLICY "Anyone can view posts"
+  ON posts FOR SELECT USING (true);
+
+-- 自分の投稿のみ作成・削除可能
+CREATE POLICY "Users can manage own posts"
+  ON posts FOR ALL USING (auth.uid() = user_id);
+```
+
+## Supabase Storage への画像アップロード
+
+```ts
+const { data, error } = await supabase.storage
+  .from('post-images')
+  .upload(`${userId}/${Date.now()}.jpg`, blob, {
+    contentType: 'image/jpeg',
+  });
+```
+
+## Realtime 購読パターン
+
+```ts
+useEffect(() => {
+  const channel = supabase
+    .channel('posts-realtime')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, (payload) => {
+      // 新しい投稿が来たとき
+    })
+    .subscribe();
+  return () => { supabase.removeChannel(channel); };
+}, []);
+```
+
+## フォロー機能
+
+```ts
+// フォロー
+await supabase.from('follows').insert({ follower_id: myId, following_id: targetId });
+
+// フォロー解除
+await supabase.from('follows').delete()
+  .eq('follower_id', myId).eq('following_id', targetId);
+
+// フォロー中のユーザーの投稿を取得
+const { data } = await supabase
+  .from('posts')
+  .select('*, profiles(*)')
+  .in('user_id', followingIds)
+  .order('created_at', { ascending: false });
+```
