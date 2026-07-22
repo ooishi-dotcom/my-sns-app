@@ -27,12 +27,20 @@ type PostDetails = {
   taste: string | null;
   price: string | null;
   rating: number | null;
+  media: 'image' | 'video';
 };
 
 // caption 列をデコードして詳細を取り出す。
 // 旧形式（プレーンテキストの caption）は店名として扱う。
 function decodePost(caption: string | null): PostDetails {
-  if (!caption) return { name: null, taste: null, price: null, rating: null };
+  const empty: PostDetails = {
+    name: null,
+    taste: null,
+    price: null,
+    rating: null,
+    media: 'image',
+  };
+  if (!caption) return empty;
   try {
     const o = JSON.parse(caption);
     if (o && typeof o === 'object' && o.v === 1) {
@@ -41,12 +49,13 @@ function decodePost(caption: string | null): PostDetails {
         taste: typeof o.taste === 'string' ? o.taste : null,
         price: typeof o.price === 'string' ? o.price : null,
         rating: typeof o.rating === 'number' ? o.rating : null,
+        media: o.media === 'video' ? 'video' : 'image',
       };
     }
   } catch {
     // JSON でなければ旧形式のプレーンな caption
   }
-  return { name: caption, taste: null, price: null, rating: null };
+  return { ...empty, name: caption };
 }
 
 // 価格帯コードを表示用ラベルに変換
@@ -253,12 +262,22 @@ export default async function Home() {
                 >
                   <div className="relative aspect-square overflow-hidden">
                     {post.signedUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={post.signedUrl}
-                        alt={details.name ?? '投稿写真'}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
+                      details.media === 'video' ? (
+                        <video
+                          src={post.signedUrl}
+                          controls
+                          playsInline
+                          preload="metadata"
+                          className="h-full w-full bg-black object-cover"
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={post.signedUrl}
+                          alt={details.name ?? '投稿写真'}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      )
                     ) : (
                       <div className="flex h-full items-center justify-center bg-secondary text-xs text-muted-foreground">
                         画像を読み込めませんでした
