@@ -10,6 +10,10 @@ export async function GET(request: NextRequest) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // ログイン完了後はトップページ（タイムライン）にリダイレクト
-  return NextResponse.redirect(requestUrl.origin + '/');
+  // 遷移先: next が指定されていればそこへ（例: パスワード再設定画面）
+  // オープンリダイレクト対策として、内部パス（/始まり かつ //でない）のみ許可
+  const next = requestUrl.searchParams.get('next');
+  const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : '/';
+
+  return NextResponse.redirect(requestUrl.origin + safeNext);
 }

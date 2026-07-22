@@ -8,14 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // ログイン画面
-// Supabase Auth（メールアドレス + パスワード）を使ったログイン・新規登録
+// メールアドレス + パスワードだけのシンプルなログイン
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
 
@@ -25,20 +24,10 @@ export default function LoginPage() {
     setMessage(null);
 
     try {
-      if (mode === 'signin') {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        router.push('/');
-        router.refresh();
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-        });
-        if (error) throw error;
-        setMessage({ type: 'success', text: '確認メールを送信しました。メールを確認してください。' });
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      router.push('/');
+      router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'エラーが発生しました';
       setMessage({ type: 'error', text: message });
@@ -48,17 +37,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-md border-primary-500/25 shadow-lg shadow-black/50">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">
-            {mode === 'signin' ? 'ログイン' : 'アカウント作成'}
+          <p className="text-center text-[10px] font-medium tracking-[0.3em] text-primary-400/80">
+            PREMIUM DINING
+          </p>
+          <CardTitle className="font-serif-lux text-center text-2xl font-bold text-primary-300">
+            失敗しない接待レストラン
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-primary-400 mb-1">
                 メールアドレス
               </label>
               <Input
@@ -72,7 +64,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-primary-400 mb-1">
                 パスワード
               </label>
               <Input
@@ -89,8 +81,8 @@ export default function LoginPage() {
               <div
                 className={`rounded-md p-3 text-sm ${
                   message.type === 'error'
-                    ? 'bg-red-50 text-red-700 border border-red-200'
-                    : 'bg-green-50 text-green-700 border border-green-200'
+                    ? 'bg-red-500/10 text-red-400 border border-red-500/40'
+                    : 'bg-green-500/10 text-green-400 border border-green-500/40'
                 }`}
               >
                 {message.text}
@@ -98,35 +90,9 @@ export default function LoginPage() {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? '処理中...' : mode === 'signin' ? 'ログイン' : 'アカウント作成'}
+              {loading ? '処理中...' : 'ログイン'}
             </Button>
           </form>
-
-          <div className="mt-4 text-center text-sm text-gray-600">
-            {mode === 'signin' ? (
-              <>
-                アカウントをお持ちでない方は{' '}
-                <button
-                  type="button"
-                  onClick={() => { setMode('signup'); setMessage(null); }}
-                  className="text-primary-600 hover:underline font-medium"
-                >
-                  新規登録
-                </button>
-              </>
-            ) : (
-              <>
-                すでにアカウントをお持ちの方は{' '}
-                <button
-                  type="button"
-                  onClick={() => { setMode('signin'); setMessage(null); }}
-                  className="text-primary-600 hover:underline font-medium"
-                >
-                  ログイン
-                </button>
-              </>
-            )}
-          </div>
         </CardContent>
       </Card>
     </div>

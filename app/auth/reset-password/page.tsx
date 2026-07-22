@@ -52,15 +52,17 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-md border-primary-500/25 shadow-lg shadow-black/50">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">パスワードをリセット</CardTitle>
+          <CardTitle className="font-serif-lux text-center text-2xl font-bold text-primary-300">
+            パスワードをリセット
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-primary-400 mb-1">
                 新しいパスワード
               </label>
               <Input
@@ -74,7 +76,7 @@ export default function ResetPassword() {
               />
             </div>
             <div>
-              <label htmlFor="confirmedPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="confirmedPassword" className="block text-sm font-medium text-primary-400 mb-1">
                 パスワードの確認
               </label>
               <Input
@@ -92,8 +94,8 @@ export default function ResetPassword() {
               <div
                 className={`rounded-md p-3 text-sm ${
                   message.type === 'success'
-                    ? 'bg-green-50 text-green-700 border border-green-200'
-                    : 'bg-red-50 text-red-700 border border-red-200'
+                    ? 'bg-green-500/10 text-green-400 border border-green-500/40'
+                    : 'bg-red-500/10 text-red-400 border border-red-500/40'
                 }`}
               >
                 {message.text}
@@ -106,7 +108,7 @@ export default function ResetPassword() {
           </form>
 
           <div className="mt-4 text-center text-sm">
-            <Link href="/login" className="text-primary-600 hover:underline">
+            <Link href="/login" className="text-primary-400 hover:underline">
               ログインに戻る
             </Link>
           </div>

@@ -4,25 +4,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    /* 温かい黒基調 + アンティークゴールドのテーマ（キャンドルの灯りのような高級感） */
+    --background: 30 12% 6%;
+    --foreground: 40 25% 90%;
+    --card: 28 11% 9%;
+    --card-foreground: 40 25% 90%;
+    --popover: 28 11% 9%;
+    --popover-foreground: 40 25% 90%;
+    --primary: 42 47% 58%;
+    --primary-foreground: 30 15% 7%;
+    --secondary: 30 8% 14%;
+    --secondary-foreground: 40 25% 90%;
+    --muted: 30 8% 14%;
+    --muted-foreground: 40 12% 62%;
+    --accent: 42 47% 58%;
+    --accent-foreground: 30 15% 7%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 40 25% 94%;
+    --border: 40 22% 22%;
+    --input: 40 22% 22%;
+    --ring: 42 47% 58%;
     --radius: 0.5rem;
   }
 
@@ -32,6 +33,20 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    /* キャンドルの灯りのような、上部が仄かに暖色に灯る奥行きのある背景 */
+    background-image:
+      radial-gradient(120% 60% at 50% -10%, hsl(40 45% 20% / 0.5) 0%, transparent 55%),
+      radial-gradient(100% 50% at 90% 0%, hsl(30 40% 18% / 0.35) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  /* 明朝体の上品な見出し（フクリコの参考ビジュアルの雰囲気に寄せる） */
+  .font-serif-lux {
+    font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'YuMincho',
+      'MS PMincho', serif;
+    letter-spacing: 0.02em;
   }
 }
 
@@ -41,14 +56,14 @@
   }
 
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700;
+    @apply bg-primary-500 text-black hover:bg-primary-400;
   }
 
   .btn-secondary {
-    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
   }
 
   .input {
-    @apply px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply px-3 py-2 bg-background border border-input rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
   }
 }
