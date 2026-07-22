@@ -70,3 +70,6 @@ qdrant_data/
 .supabase
 supabase/.branches
 supabase/.temp
+
+# 開発サーバーのログ（リポジトリに含めない）
+dev-server.log
